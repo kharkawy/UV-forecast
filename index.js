@@ -1,7 +1,7 @@
 const apiToken = "85797c8abf405c359f7f51563fc05172";
 const apiURL = "https://api.openuv.io/api/v1/uv";
 
-var locationInput = document.getElementsByClassName("location-input")[0];
+var locationInput = document.getElementById("location-input");
 const autocomplete = new google.maps.places.Autocomplete(locationInput);
 
 autocomplete.addListener("place_changed", function () {
@@ -32,8 +32,10 @@ function updateUVLabel(uv) {
 //Geolocation
 
 var geolocationBtn = document.getElementById("geolocation-button");
+var geolocationStatus = document.getElementById("geolocation-status");
 
 geolocationBtn.addEventListener("click", function () {
+  geolocationStatus.innerHTML = "Locating…";
   navigator.geolocation.getCurrentPosition(
     geolocationSuccess,
     geolocationError,
@@ -45,12 +47,15 @@ function geolocationSuccess(position) {
   var lat = position.coords.latitude;
   var lng = position.coords.longitude;
 
+  geolocationStatus.innerHTML = "";
+
   fetchUVDataByLatLng(lat, lng).then(function (uvForecast) {
     updateUVLabel(uvForecast.result.uv);
   });
 }
 
 function geolocationError(err) {
+  geolocationStatus.innerHTML = "Unable to retrieve your location.";
   console.log(err.code, err.message);
 }
 
