@@ -1,5 +1,43 @@
-const apiToken = "85797c8abf405c359f7f51563fc05172";
-const apiURL = "https://api.openuv.io/api/v1/uv";
+//Get UV data
+
+const openuvApiToken = "85797c8abf405c359f7f51563fc05172";
+const openuvApiURL = "https://api.openuv.io/api/v1/uv";
+
+function fetchCurrentUVByLatLng(lat, lng) {
+  return fetch(openuvApiURL + "?lat=" + lat + "&lng=" + lng, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      "x-access-token": openuvApiToken,
+    },
+  }).then(function (response) {
+    return response.json();
+  });
+}
+
+const openweatherApiToken = "c1d13ca3ce67ce7193a0ba5b70468f07";
+const openweatherApiUrl = "https://api.openweathermap.org/data/2.5/onecall";
+
+function fetchWeatherDataByLatLng(lat, lng, excl) {
+  return fetch(
+    openweatherApiUrl +
+      `?lat=` +
+      lat +
+      `&lon=` +
+      lng +
+      `&exclude=` +
+      excl +
+      `&appid=` +
+      openweatherApiToken,
+    {
+      headers: {
+        Accept: "application/json",
+      },
+    }
+  ).json();
+}
+
+//Autocomplete
 
 var locationInput = document.getElementById("location-input");
 var autocompleteOptions = {
@@ -16,62 +54,16 @@ autocomplete.addListener("place_changed", function () {
   var lng = autocomplete.getPlace().geometry.location.lng();
   var locationName = autocomplete.getPlace().address_components[0].long_name;
 
+  const excl = "minutely,hourly";
+
   fetchCurrentUVByLatLng(lat, lng).then(function (openuv) {
     updateUI(openuv.result, locationName);
   });
-});
 
-function fetchCurrentUVByLatLng(lat, lng) {
-  return fetch(apiURL + "?lat=" + lat + "&lng=" + lng, {
-    method: "GET",
-    headers: {
-      Accept: "application/json",
-      "x-access-token": apiToken,
-    },
-  }).then(function (response) {
-    return response.json();
+  fetchWeatherDataByLatLng(lat, lng, excl).then(function (response) {
+    console.log(response);
   });
-}
-
-function updateUI(uvdata, location) {
-  console.log(uvdata);
-
-  document.getElementById("uv-index-value").innerHTML = Math.round(uvdata.uv);
-  document.getElementById(
-    "uv-index-level-name"
-  ).innerHTML = findColorAndLevelName(uvdata.uv);
-
-  document.getElementById("location-city").innerHTML = location;
-  document.getElementById("sunrise-time").innerHTML = convertDate(
-    uvdata.sun_info.sun_times.sunrise
-  );
-  document.getElementById("sunset-time").innerHTML = convertDate(
-    uvdata.sun_info.sun_times.sunset
-  );
-}
-
-function convertDate(date) {
-  return (convertedDate = new Date(date).toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  }));
-}
-
-function findColorAndLevelName(uv) {
-  if (uv >= 0 && uv < 3) {
-    return "low";
-  } else if (uv >= 3 && uv < 6) {
-    return "moderate";
-  } else if (uv >= 6 && uv < 8) {
-    return "high";
-  } else if (uv >= 8 && uv < 11) {
-    return "very high";
-  } else if (uv >= 11) {
-    return "extreme";
-  } else {
-    return "not found";
-  }
-}
+});
 
 //Geolocation
 
@@ -137,6 +129,48 @@ function findLocationName(geocoder, latlng) {
       }
     });
   });
+}
+
+//Changes in UI
+
+function updateUI(uvdata, location) {
+  console.log(uvdata);
+
+  document.getElementById("uv-index-value").innerHTML = Math.round(uvdata.uv);
+  document.getElementById(
+    "uv-index-level-name"
+  ).innerHTML = findColorAndLevelName(uvdata.uv);
+
+  document.getElementById("location-city").innerHTML = location;
+  document.getElementById("sunrise-time").innerHTML = convertDate(
+    uvdata.sun_info.sun_times.sunrise
+  );
+  document.getElementById("sunset-time").innerHTML = convertDate(
+    uvdata.sun_info.sun_times.sunset
+  );
+}
+
+function convertDate(date) {
+  return (convertedDate = new Date(date).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  }));
+}
+
+function findColorAndLevelName(uv) {
+  if (uv >= 0 && uv < 3) {
+    return "low";
+  } else if (uv >= 3 && uv < 6) {
+    return "moderate";
+  } else if (uv >= 6 && uv < 8) {
+    return "high";
+  } else if (uv >= 8 && uv < 11) {
+    return "very high";
+  } else if (uv >= 11) {
+    return "extreme";
+  } else {
+    return "not found";
+  }
 }
 
 /* TO DO:
