@@ -7,22 +7,44 @@
 		<link rel="stylesheet" href="style.css">
 	</head>
 	<body>
-		<nav>
-			<input id="location-input" type="text"/>
-			<button id="geolocation-button" class="geo-btn"></button>
+		<nav id="navigation">
+			<input id="location-input" class="input" type="text"/>
+			<button id="geolocation-btn" class="btn">
+				<svg xmlns="http://www.w3.org/2000/svg" height="24" viewbox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+			</button>
+			<button id="celsius-btn" class="btn btn-active">&degC</button>
+			<span id="separator"></span>
+			<button id="fahrenheit-btn" class="btn">&degF</button>
 		</nav>
 
-		<span id="geolocation-status"></span>
+		<main id="current-conditions-container">
+			<p id="status"></p>
+			<h2 id="location-city" class="conditions-item"></h2>
+			<h1 id="uv-index-value" class="conditions-item"></h1>
+			<h3 id="uv-index-level-name" class="conditions-item"></h3>
+			<div id="weather-container">
+				<div class="weather-item">
+					<p id="current-temp" class="weather-item-value"></p>
+				</div>
 
-		<span id="location-city"></span>
-		<span id="uv-index-value"></span>
-		<span id="uv-index-level-name"></span>
-		<span id="sunrise-time"></span>
-		<span id="sunset-time"></span>
-		<span id="current-temp"></span>
-		<span id="current-clouds"></span>
+				<div class="weather-item">
+					<p id="current-clouds" class="weather-item-value"></p>
+				</div>
+
+				<div class="weather-item">
+					<p id="sunrise-time" class="weather-item-value"></p>
+				</div>
+
+				<div class="weather-item">
+					<p id="sunset-time" class="weather-item-value"></p>
+				</div>
+
+
+			</div>
+		</main>
+
 
 		<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDu8k938-q1oBmjJK7uMrmNNBLOTccMCFo&libraries=places"></script>
 		<script src="index.js"></script>
 	</body>
-</html>
+</html></body></html>

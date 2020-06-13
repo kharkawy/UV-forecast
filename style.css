@@ -1,11 +1,135 @@
-.geo-btn {
+@import url("https://fonts.googleapis.com/css2?family=Overpass:wght@300;400;700;800&display=swap");
+
+/* TO DO
+- app status
+- style focusing on elements
+- animations 
+- hovering on buttons 
+*/
+
+body {
+  margin: 0;
+  background-color: #ffffff;
+}
+
+/* Navigation */
+
+#navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.input {
+  width: 200px;
   border: none;
+  border-bottom: 2px solid #000000;
   background-color: transparent;
-  background-image: url(gps_fixed-24px.svg);
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: cover;
+  font-family: "Overpass", sans-serif;
+}
+
+::placeholder {
+  color: #000000;
+}
+
+.btn {
+  background: none;
+  border: none;
+  margin: 0;
   padding: 0;
-  width: 30px;
+  font-size: 16px;
+  font-family: "Overpass", sans-serif;
+  font-weight: 300;
+  cursor: pointer;
+  width: 18px;
+}
+
+.btn-active {
+  font-weight: 800;
+}
+
+#geolocation-btn {
+  margin: 0 20px;
+}
+
+#celsius-btn {
+  margin-right: 5px;
+}
+
+#fahrenheit-btn {
+  margin-left: 5px;
+}
+
+#separator {
+  height: 20px;
+  border-left: 1.25px solid #000000;
+}
+
+/* Content */
+#current-conditions-container {
+  font-family: "Overpass", sans-serif;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  margin-top: 80px;
+}
+
+.conditions-item {
+  margin: 0;
+  font-weight: 800;
+}
+
+#location-city {
+  font-size: 30px;
+  margin-bottom: 30px;
+}
+
+#uv-index-value {
+  font-size: 120px;
+  line-height: 120px;
+}
+
+#uv-index-level-name {
+  font-size: 20px;
+  text-transform: uppercase;
+  margin-bottom: 50px;
+}
+
+#weather-container {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  height: 90px;
+}
+
+.weather-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+  margin-right: 20px;
+}
+
+.weather-item:first-child {
+  margin-top: 5px;
+}
+
+.weather-item:nth-last-child(-n + 2) {
+  align-items: flex-end;
+  justify-content: flex-start;
+  margin-right: 0;
+  margin-left: 20px;
+}
+
+.weather-item-icon {
   height: 30px;
+  width: 30px;
+}
+.weather-item-value {
+  height: 20px;
+  margin: 0 0 0 10px;
+  font-size: 20px;
+  font-weight: 700;
+  width: 52px;
 }
