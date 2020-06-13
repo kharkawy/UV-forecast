@@ -15,8 +15,11 @@ function fetchCurrentUVByLatLng(lat, lng) {
   });
 }
 
+//Get Weather Data
+
 const openweatherApiToken = "c1d13ca3ce67ce7193a0ba5b70468f07";
 const openweatherApiUrl = "https://api.openweathermap.org/data/2.5/onecall";
+const excl = "minutely,hourly";
 
 function fetchWeatherDataByLatLng(lat, lng, excl) {
   return fetch(
@@ -34,7 +37,9 @@ function fetchWeatherDataByLatLng(lat, lng, excl) {
         Accept: "application/json",
       },
     }
-  ).json();
+  ).then(function (response) {
+    return response.json();
+  });
 }
 
 //Autocomplete
@@ -52,16 +57,12 @@ const autocomplete = new google.maps.places.Autocomplete(
 autocomplete.addListener("place_changed", function () {
   var lat = autocomplete.getPlace().geometry.location.lat();
   var lng = autocomplete.getPlace().geometry.location.lng();
-  var locationName = autocomplete.getPlace().address_components[0].long_name;
-
-  const excl = "minutely,hourly";
+  var location = autocomplete.getPlace().address_components;
 
   fetchCurrentUVByLatLng(lat, lng).then(function (openuv) {
-    updateUI(openuv.result, locationName);
-  });
-
-  fetchWeatherDataByLatLng(lat, lng, excl).then(function (response) {
-    console.log(response);
+    fetchWeatherDataByLatLng(lat, lng, excl).then(function (openweather) {
+      updateUI(openuv.result, location, openweather);
+    });
   });
 });
 
@@ -92,9 +93,11 @@ function geolocationSuccess(position) {
 
   geolocationStatus.innerHTML = ""; //turn updating status into a function
 
-  findLocationName(geocoder, LatLng).then(function (locationName) {
+  findLocationName(geocoder, LatLng).then(function (location) {
     fetchCurrentUVByLatLng(lat, lng).then(function (openuv) {
-      updateUI(openuv.result, locationName);
+      fetchWeatherDataByLatLng(lat, lng, excl).then(function (openweather) {
+        updateUI(openuv.result, location, openweather);
+      });
     });
   });
 }
@@ -112,13 +115,9 @@ function findLocationName(geocoder, latlng) {
     geocoder.geocode({ location: latlng }, function (result, status) {
       if (status === "OK") {
         if (result[0]) {
-          const targetAddressComp = result[0].address_components.find(function (
-            addressComp
-          ) {
-            return addressComp.types.includes("locality");
-          });
+          const targetAddressComp = result[0].address_components;
 
-          resolve(targetAddressComp ? targetAddressComp.long_name : "");
+          resolve(targetAddressComp ? targetAddressComp : "");
         } else {
           console.log("No results found");
           reject();
@@ -133,21 +132,33 @@ function findLocationName(geocoder, latlng) {
 
 //Changes in UI
 
-function updateUI(uvdata, location) {
-  console.log(uvdata);
+function updateUI(uvData, location, weatherData) {
+  const city = location.find(function (addressComp) {
+    return addressComp.types.includes("locality");
+  }).long_name;
 
-  document.getElementById("uv-index-value").innerHTML = Math.round(uvdata.uv);
+  var rawUV = uvData.uv;
+  var cloudsCoverage = weatherData.current.clouds;
+  var temp = weatherData.current.temp;
+
+  const cloudsUV = calculateCloudsFactor(rawUV, cloudsCoverage);
+
+  document.getElementById("uv-index-value").innerHTML = cloudsUV;
   document.getElementById(
     "uv-index-level-name"
-  ).innerHTML = findColorAndLevelName(uvdata.uv);
+  ).innerHTML = findColorAndLevelName(cloudsUV);
 
-  document.getElementById("location-city").innerHTML = location;
-  document.getElementById("sunrise-time").innerHTML = convertDate(
-    uvdata.sun_info.sun_times.sunrise
+  document.getElementById("location-city").innerHTML = city;
+  document.getElementById("sunrise-time").innerHTML =
+    `Sunrise: ` + convertDate(uvData.sun_info.sun_times.sunrise);
+  document.getElementById("sunset-time").innerHTML =
+    `Sunset: ` + convertDate(uvData.sun_info.sun_times.sunset);
+  document.getElementById("current-temp").innerHTML = convertTemperature(
+    temp,
+    location
   );
-  document.getElementById("sunset-time").innerHTML = convertDate(
-    uvdata.sun_info.sun_times.sunset
-  );
+  document.getElementById("current-clouds").innerHTML =
+    `Clouds coverage: ` + cloudsCoverage;
 }
 
 function convertDate(date) {
@@ -173,11 +184,34 @@ function findColorAndLevelName(uv) {
   }
 }
 
+function convertTemperature(temp, location) {
+  const countryCode = location.find(function (addressComp) {
+    return addressComp.types.includes("country");
+  }).short_name;
+
+  if (countryCode == "US") {
+    return Math.round(temp * 1.8 - 459.67) + `F&deg`;
+  } else {
+    return Math.round(temp - 273.15) + `C&deg`;
+  }
+}
+
+function calculateCloudsFactor(uv, clouds) {
+  if (clouds < 20) {
+    return Math.round(uv);
+  } else if (clouds >= 20 && clouds < 70) {
+    return Math.round(uv * 0.89);
+  } else if (clouds >= 70 && clouds < 90) {
+    return Math.round(uv * 0.73);
+  } else if (clouds >= 90) {
+    return Math.round(uv * 0.31);
+  }
+}
+
 /* TO DO:
-- import temeperature and cloud coverage form some weather API
-- calculate UV based on cloud coverage
 - UV index forcast for the next few hours
 - forecast for the next week: temp, clouds, UV
 - safe exposure time
 - vitamine D intake 
+- celsius and fahrenheit switch
 */

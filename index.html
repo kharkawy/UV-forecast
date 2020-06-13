@@ -4,10 +4,13 @@
 		<meta charset="UTF-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 		<title>UVForecast</title>
+		<link rel="stylesheet" href="style.css">
 	</head>
 	<body>
-		<input id="location-input" type="text"/>
-		<button id="geolocation-button">Find my location</button>
+		<nav>
+			<input id="location-input" type="text"/>
+			<button id="geolocation-button" class="geo-btn"></button>
+		</nav>
 
 		<span id="geolocation-status"></span>
 
@@ -16,6 +19,8 @@
 		<span id="uv-index-level-name"></span>
 		<span id="sunrise-time"></span>
 		<span id="sunset-time"></span>
+		<span id="current-temp"></span>
+		<span id="current-clouds"></span>
 
 		<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDu8k938-q1oBmjJK7uMrmNNBLOTccMCFo&libraries=places"></script>
 		<script src="index.js"></script>
