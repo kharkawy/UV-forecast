@@ -42,10 +42,13 @@ body {
   font-family: "Overpass", sans-serif;
   font-weight: 300;
   cursor: pointer;
+}
+
+.btn-temp {
   width: 18px;
 }
 
-.btn-active {
+.btn-temp-active {
   font-weight: 800;
 }
 
@@ -69,7 +72,7 @@ body {
 /* Content */
 #current-conditions-container {
   font-family: "Overpass", sans-serif;
-  display: flex;
+  display: none;
   flex-direction: column;
   text-align: center;
   margin-top: 80px;
@@ -132,4 +135,36 @@ body {
   font-size: 20px;
   font-weight: 700;
   width: 52px;
+}
+
+/* Vit D and safe exposure */
+
+#skin-type-data-container {
+  display: none;
+  align-items: center;
+  flex-direction: column;
+}
+
+#skin-type-btns-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.btn-skin-type {
+  margin: 0 10px;
+  font-size: 40px;
+}
+
+.skin-type-data {
+  min-width: 300px;
+  max-width: 375px;
+  font-size: 16px;
+  font-family: "Overpass", sans-serif;
+  text-align: center;
+  font-weight: 400;
+}
+
+.skin-type-data-value {
+  font-weight: 800;
 }

@@ -1,13 +1,58 @@
-document.addEventListener("DOMContentLoaded", function () {
-  var status = document.getElementById("status");
+/* TO DO:
+- fix hands data update
+- change class and id naming
 
-  //Get UV data
+*/
+
+document.addEventListener("DOMContentLoaded", function () {
+  //ALL DECLARATIONS
 
   const openuvApiToken = "85797c8abf405c359f7f51563fc05172";
-  const openuvApiURL = "https://api.openuv.io/api/v1/uv";
+  const openuvApiURL = "https://api.openuv.io/api/v1/";
+
+  const openweatherApiToken = "c1d13ca3ce67ce7193a0ba5b70468f07";
+  const openweatherApiUrl = "https://api.openweathermap.org/data/2.5/onecall";
+  const excludeForecast = "minutely";
+
+  const useMockApiResponse = true;
+
+  const locationInput = document.getElementById("location-input");
+  const autocompleteOptions = {
+    types: ["(cities)"],
+  };
+  const autocomplete = new google.maps.places.Autocomplete(
+    locationInput,
+    autocompleteOptions
+  );
+
+  const geolocationBtn = document.getElementById("geolocation-btn");
+  const geolocationOptions = {
+    timeout: 10000,
+  };
+
+  const currentTemp = document.getElementById("current-temp");
+  const currentClouds = document.getElementById("current-clouds");
+  const sunriseTime = document.getElementById("sunrise-time");
+  const sunsetTime = document.getElementById("sunset-time");
+
+  const celsiusBtn = document.getElementById("celsius-btn");
+  const fahrenheitBtn = document.getElementById("fahrenheit-btn");
+  let tempInKelvins = "";
+  let tempScale = "C";
+
+  const appStatus = document.getElementById("status");
+
+  const todayDate = new Date();
+
+  //Get UV Data
 
   function fetchCurrentUVByLatLng(lat, lng) {
-    return fetch(openuvApiURL + "?lat=" + lat + "&lng=" + lng, {
+    if (useMockApiResponse) {
+      return new Promise(function (resolve) {
+        resolve(fakeResponse);
+      });
+    }
+    return fetch(openuvApiURL + "uv" + "?lat=" + lat + "&lng=" + lng, {
       method: "GET",
       headers: {
         Accept: "application/json",
@@ -19,7 +64,47 @@ document.addEventListener("DOMContentLoaded", function () {
         return response.json();
       })
       .catch(function (err) {
-        status.innerHTML = err;
+        appStatus.innerHTML = err;
+      });
+  }
+
+  function handleErrors(response) {
+    if (!response.ok) {
+      throw Error(response.statusText);
+    }
+    return response;
+  }
+  //Get UV Forecast Data
+
+  function fetchForecastUVByLatLng(lat, lng) {
+    if (useMockApiResponse) {
+      return new Promise(function (resolve) {
+        resolve(fakeForecastResponse);
+      });
+    }
+    return fetch(
+      openuvApiURL +
+        "forecast" +
+        "?lat=" +
+        lat +
+        "&lng=" +
+        lng +
+        "&dt=" +
+        todayDate,
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "x-access-token": openuvApiToken,
+        },
+      }
+    )
+      .then(handleErrors)
+      .then(function (response) {
+        return response.json();
+      })
+      .catch(function (err) {
+        appStatus.innerHTML = err;
       });
   }
 
@@ -31,10 +116,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   //Get Weather Data
-
-  const openweatherApiToken = "c1d13ca3ce67ce7193a0ba5b70468f07";
-  const openweatherApiUrl = "https://api.openweathermap.org/data/2.5/onecall";
-  const excl = "minutely,hourly";
 
   function fetchWeatherDataByLatLng(lat, lng, excl) {
     return fetch(
@@ -58,46 +139,42 @@ document.addEventListener("DOMContentLoaded", function () {
         return response.json();
       })
       .catch(function (err) {
-        status.innerHTML = err;
+        appStatus.innerHTML = err;
       });
   }
 
   //Autocomplete
 
-  var locationInput = document.getElementById("location-input");
-  var autocompleteOptions = {
-    types: ["(cities)"],
-  };
-
-  const autocomplete = new google.maps.places.Autocomplete(
-    locationInput,
-    autocompleteOptions
-  );
-
   autocomplete.addListener("place_changed", function () {
-    var place = autocomplete.getPlace();
+    const place = autocomplete.getPlace();
+
+    appStatus.innerHTML = "";
 
     if (!place.geometry) {
-      status.innerHTML = "No details available for input: '" + place.name + "'";
+      appStatus.innerHTML =
+        "No details available for input: '" + place.name + "'";
       return;
     }
 
-    var lat = place.geometry.location.lat();
-    var lng = place.geometry.location.lng();
-    var location = place.address_components;
+    const lat = place.geometry.location.lat();
+    const lng = place.geometry.location.lng();
+    const location = place.address_components;
 
     fetchCurrentUVByLatLng(lat, lng).then(function (openuv) {
-      fetchWeatherDataByLatLng(lat, lng, excl).then(function (openweather) {
-        updateUI(openuv.result, location, openweather);
+      fetchForecastUVByLatLng(lat, lng).then(function (uvforecast) {
+        fetchWeatherDataByLatLng(lat, lng, excludeForecast).then(function (
+          openweather
+        ) {
+          updateUI(openuv.result, location, openweather, uvforecast);
+        });
       });
     });
   });
 
   //Geolocation
 
-  var geolocationBtn = document.getElementById("geolocation-btn");
-
   geolocationBtn.addEventListener("click", function () {
+    appStatus.innerHTML = "Locating...";
     navigator.geolocation.getCurrentPosition(
       geolocationSuccess,
       geolocationError,
@@ -116,21 +193,21 @@ document.addEventListener("DOMContentLoaded", function () {
       lng: parseFloat(lng),
     };
 
+    appStatus.innerHTML = "";
+
     findLocationName(geocoder, LatLng).then(function (location) {
       fetchCurrentUVByLatLng(lat, lng).then(function (openuv) {
-        fetchWeatherDataByLatLng(lat, lng, excl).then(function (openweather) {
+        fetchWeatherDataByLatLng(lat, lng, excludeForecast).then(function (
+          openweather
+        ) {
           updateUI(openuv.result, location, openweather);
         });
       });
     });
   }
   function geolocationError(err) {
-    status.innerHTML = "Unable to retrieve your location.";
+    appStatus.innerHTML = "Unable to retrieve your location.";
   }
-
-  var geolocationOptions = {
-    timeout: 10000,
-  };
 
   function findLocationName(geocoder, latlng) {
     return new Promise(function (resolve, reject) {
@@ -139,13 +216,15 @@ document.addEventListener("DOMContentLoaded", function () {
           if (result[0]) {
             const targetAddressComp = result[0].address_components;
 
+            appStatus.innerHTML = "";
+
             resolve(targetAddressComp ? targetAddressComp : "");
           } else {
-            status.innerHTML("Location name unavailable");
+            appStatus.innerHTML = "Location name unavailable";
             reject();
           }
         } else {
-          status.innerHTML("Geocoder failed due to: " + status);
+          appStatus.innerHTML = "Geocoder failed due to: " + status;
           reject();
         }
       });
@@ -154,50 +233,171 @@ document.addEventListener("DOMContentLoaded", function () {
 
   //Changes in UI
 
-  var tempInKelvins = "";
-
-  function updateUI(uvData, location, weatherData) {
+  function updateUI(uvData, location, weatherData, uvforecast) {
     const city = location.find(function (addressComp) {
       return addressComp.types.includes("locality");
     }).long_name;
 
-    var rawUV = uvData.uv;
-    var cloudsCoverage = weatherData.current.clouds;
+    const rawUV = uvData.uv;
+    const cloudsCoverage = weatherData.current.clouds;
     tempInKelvins = weatherData.current.temp;
 
     const cloudsUV = calculateCloudsFactor(rawUV, cloudsCoverage);
+    const cloudsUVLabel = findColorAndLevelName(cloudsUV);
+
+    document.querySelector("#current-conditions-container").style.display =
+      "flex";
 
     document.getElementById("location-city").innerHTML = city;
-
     document.getElementById("uv-index-value").innerHTML = cloudsUV;
+    document.getElementById("uv-index-level-name").innerHTML = cloudsUVLabel;
 
-    document.getElementById(
-      "uv-index-level-name"
-    ).innerHTML = findColorAndLevelName(cloudsUV);
+    currentTemp.innerHTML = convertTemperature(tempInKelvins, tempScale);
 
-    document
-      .getElementById("current-temp")
-      .insertAdjacentHTML("beforebegin", thermometerIcon);
-    convertTemperature(tempInKelvins, scale);
+    currentClouds.innerHTML = cloudsCoverage + `%`;
 
-    document
-      .getElementById("current-clouds")
-      .insertAdjacentHTML("beforebegin", cloudIcon);
-    document.getElementById("current-clouds").innerHTML = cloudsCoverage + `%`;
+    sunriseTime.innerHTML = convertDate(uvData.sun_info.sun_times.sunrise);
 
-    document
-      .getElementById("sunrise-time")
-      .insertAdjacentHTML("beforebegin", sunriseIcon);
-    document.getElementById("sunrise-time").innerHTML = convertDate(
-      uvData.sun_info.sun_times.sunrise
+    sunsetTime.innerHTML = convertDate(uvData.sun_info.sun_times.sunset);
+
+    addListenerSkinBtns(cloudsUV, cloudsUVLabel);
+    displayForecast(weatherData, uvforecast);
+  }
+
+  function createWeeklyWeatherForcast(weatherData) {
+    const dailyWeather = weatherData.daily;
+    const daysOfWeek = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+    const forecast = [];
+    for (let i = 1; i < dailyWeather.length; i++) {
+      const numberDayOfWeek = new Date(dailyWeather[i].dt * 1000).getDay();
+      const nameDayOfWeek = daysOfWeek[numberDayOfWeek];
+      const maxTemp = convertTemperature(dailyWeather[i].temp.max, tempScale);
+      const minTemp = convertTemperature(dailyWeather[i].temp.min, tempScale);
+      const description = dailyWeather[i].weather[0].description;
+      const clouds = dailyWeather[i].clouds;
+      const uv = dailyWeather[i].uvi;
+      const convertedUV = calculateCloudsFactor(uv, clouds);
+
+      forecast.push([
+        nameDayOfWeek,
+        maxTemp,
+        minTemp,
+        description,
+        convertedUV,
+      ]);
+    }
+    return forecast;
+  }
+
+  function createHourlyWeatherForcast(weatherData, uvforecast) {
+    const hourlyWeather = weatherData.hourly;
+    const hourlyUV = uvforecast.result;
+    const forecast = [];
+    const uvUpcomingHours = [];
+
+    for (let j = 0; j < hourlyUV.length; j++) {
+      const uvHour = convertDate(hourlyUV[j].uv_time).substring(0, 2);
+      const currentHour = convertDate(todayDate).substring(0, 2);
+
+      if (uvHour >= currentHour) {
+        uvUpcomingHours.push(hourlyUV[j]); //push only UV value to array - after testing
+      }
+    }
+
+    console.log(uvUpcomingHours);
+
+    for (let i = 1; i < 8; i++) {
+      let hour = new Date(hourlyWeather[i].dt * 1000);
+      hour = convertDate(hour);
+      const temp = convertTemperature(hourlyWeather[i].temp, tempScale);
+      const description = hourlyWeather[i].weather[0].description;
+      const clouds = hourlyWeather[i].clouds;
+      let uv = 0;
+
+      if (uvUpcomingHours[i]) {
+        uv = calculateCloudsFactor(uvUpcomingHours[i].uv, clouds);
+        console.log(
+          uvUpcomingHours[i].uv,
+          convertDate(uvUpcomingHours[i].uv_time),
+          hour
+        );
+      }
+
+      forecast.push([hour, temp, description, uv]);
+    }
+
+    return forecast;
+  }
+
+  function displayForecast(weatherData, uvforecast) {
+    const weeklyForecast = createWeeklyWeatherForcast(weatherData);
+    const hourlyForecast = createHourlyWeatherForcast(weatherData, uvforecast);
+
+    const weekForecastIds = [
+      "w-forecast-weekday",
+      "w-forecast-max-temp",
+      "w-forecast-min-temp",
+      "w-forecast-description",
+      "w-forecast-uv-value",
+    ];
+
+    const hourForecastIds = [
+      "h-forecast-hour",
+      "h-forecast-temp",
+      "h-forecast-description",
+      "h-forecast-uv-value",
+    ];
+
+    const uvForecastContainer = document.querySelector("#uv-forecast");
+
+    uvForecastContainer.innerHTML = "";
+
+    const weeklyForecastHTML = createForecastHTML(
+      weeklyForecast,
+      weekForecastIds
+    );
+    const hourlyForecastHTML = createForecastHTML(
+      hourlyForecast,
+      hourForecastIds
     );
 
-    document
-      .getElementById("sunset-time")
-      .insertAdjacentHTML("beforebegin", sunsetIcon);
-    document.getElementById("sunset-time").innerHTML = convertDate(
-      uvData.sun_info.sun_times.sunset
-    );
+    uvForecastContainer.appendChild(weeklyForecastHTML);
+    uvForecastContainer.appendChild(hourlyForecastHTML);
+  }
+
+  function createForecastHTML(forecast, ids) {
+    const forecastContainer = document.createElement("div");
+
+    for (let i = 0; i < forecast.length; i++) {
+      const forecastUnit = forecast[i];
+      const forecastUnitContainer = document.createElement("div");
+
+      for (let j = 0; j < forecastUnit.length; j++) {
+        const forecastUnitValue = document.createElement("span");
+        forecastUnitValue.innerHTML = forecastUnit[j];
+        forecastUnitValue.id = ids[j];
+
+        if (
+          typeof forecastUnit[j] === "string" &&
+          forecastUnit[j].includes("deg")
+        ) {
+          forecastUnitValue.classList.add("temp");
+        }
+
+        forecastUnitContainer.appendChild(forecastUnitValue);
+      }
+
+      forecastContainer.appendChild(forecastUnitContainer);
+    }
+    return forecastContainer;
   }
 
   function convertDate(date) {
@@ -208,7 +408,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function findColorAndLevelName(uv) {
-    var body = document.body.style;
+    const body = document.body.style;
 
     if (uv >= 0 && uv < 3) {
       body.backgroundColor = "#709D4F";
@@ -230,45 +430,44 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  const celsiusBtn = document.getElementById("celsius-btn");
-  const fahrenheitBtn = document.getElementById("fahrenheit-btn");
-  var scale = "c";
-
   celsiusBtn.addEventListener("click", function () {
-    if (!celsiusBtn.classList.contains("btn-active")) {
-      celsiusBtn.classList.toggle("btn-active");
-      fahrenheitBtn.classList.toggle("btn-active");
-      scale = "c";
-      console.log(scale);
-      convertTemperature(tempInKelvins, scale);
+    if (!celsiusBtn.classList.contains("btn-temp-active")) {
+      celsiusBtn.classList.toggle("btn-temp-active");
+      fahrenheitBtn.classList.toggle("btn-temp-active");
+      tempScale = "C";
+      updateTemperatureInUI();
     } else {
       return;
     }
   });
 
   fahrenheitBtn.addEventListener("click", function () {
-    if (!fahrenheitBtn.classList.contains("btn-active")) {
-      celsiusBtn.classList.toggle("btn-active");
-      fahrenheitBtn.classList.toggle("btn-active");
-      scale = "f";
-      console.log(scale);
-      convertTemperature(tempInKelvins, scale);
+    if (!fahrenheitBtn.classList.contains("btn-temp-active")) {
+      celsiusBtn.classList.toggle("btn-temp-active");
+      fahrenheitBtn.classList.toggle("btn-temp-active");
+      tempScale = "F";
+      updateTemperatureInUI();
     } else {
       return;
     }
   });
 
-  function convertTemperature(temp, scale) {
+  function convertTemperature(temp, tempScale) {
     if (!temp) {
       return;
     }
+    if (tempScale == "C") {
+      return Math.round(temp - 273.15) + `&degC`;
+    } else if (tempScale == "F") {
+      return Math.round(temp * 1.8 - 459.67) + `&degF`;
+    }
+  }
 
-    if (scale == "c") {
-      document.getElementById("current-temp").innerHTML =
-        Math.round(temp - 273.15) + `&degC`;
-    } else if (scale == "f") {
-      document.getElementById("current-temp").innerHTML =
-        Math.round(temp * 1.8 - 459.67) + `&degF`;
+  function updateTemperatureInUI() {
+    const tempUI = document.querySelectorAll(".temp");
+
+    for (let i = 0; i < tempUI.length; i++) {
+      tempUI[i].innerHTML = convertTemperature(tempInKelvins, tempScale);
     }
   }
 
@@ -284,56 +483,129 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  /* TO DO:
-- UV index forcast for the next few hours
-- forecast for the next week: temp, clouds, UV
-- safe exposure time
-- vitamine D intake 
-- celsius and fahrenheit switch
-*/
+  //Skin type data
 
-  var thermometerIcon = `<svg class="weather-item-icon" width="32px" height="32px" viewbox="0 0 32 32" version="1.1">
-<g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
-  <g id="icon-69-thermometer-half" sketch:type="MSArtboardGroup" fill="#000000">
-    <path d="M16.9856957,23.1656908 C18.1583541,23.5734612 19,24.6884421 19,26 C19,27.6568543 17.6568543,29 16,29 C14.3431457,29 13,27.6568543 13,26 C13,24.6885853 13.841462,23.5737048 15.01392,23.1658244 C15.0047629,23.1111049 15,23.0548783 15,22.9975267 L15,13.0024733 C15,12.455761 15.4477153,12 16,12 C16.5561352,12 17,12.4488226 17,13.0024733 L17,22.9975267 C17,23.0547158 16.995101,23.1109097 16.9856957,23.1656908 L16.9856957,23.1656908 Z M18,22.5351287 C19.1956028,23.2267475 20,24.5194352 20,26 C20,28.2091391 18.2091391,30 16,30 C13.7908609,30 12,28.2091391 12,26 C12,24.5194352 12.8043972,23.2267475 14,22.5351287 L14,4.00359486 C14,2.88976324 14.8954305,2 16,2 C17.1122704,2 18,2.89703997 18,4.00359486 L18,22.5351287 L18,22.5351287 L18,22.5351287 Z M19.9686149,21.4998925 C21.2143165,22.5993118 22,24.2079027 22,26 C22,29.3137087 19.3137087,32 16,32 C12.6862913,32 10,29.3137087 10,26 C10,24.2079329 10.785657,22.599366 12.0313221,21.4999481 C12.0106518,21.3352618 12,21.1674643 12,20.9971835 L12,4.00281647 C12,1.79793835 13.790861,0 16,0 C18.2046438,0 20,1.79212198 20,4.00281647 L20,20.9971835 C20,21.1673915 19.9893278,21.3351745 19.9686149,21.4998925 L19.9686149,21.4998925 L19.9686149,21.4998925 Z" id="thermometer-half" sketch:type="MSShapeGroup"></path>
-  </g>
-</g>
-</svg>`;
+  function addListenerSkinBtns(uv, uvLabel) {
+    document.getElementById("skin-type-data-container").style.display = "flex";
+    const btnsSkinType = document.querySelectorAll(".btn-skin-type");
 
-  var cloudIcon = `<svg class="weather-item-icon" viewbox="0 0 24 16" version="1.1">
-<g id="Icons" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-  <g id="Outlined" transform="translate(-304.000000, -2284.000000)">
-    <g id="File" transform="translate(100.000000, 2226.000000)">
-      <g id="Outlined-/-File-/-cloud_queue" transform="translate(204.000000, 54.000000)">
-        <g>
-          <polygon id="Path" points="0 0 24 0 24 24 0 24"></polygon>
-          <path d="M19.35,10.04 C18.67,6.59 15.64,4 12,4 C9.11,4 6.6,5.64 5.35,8.04 C2.34,8.36 0,10.91 0,14 C0,17.31 2.69,20 6,20 L19,20 C21.76,20 24,17.76 24,15 C24,12.36 21.95,10.22 19.35,10.04 Z M19,18 L6,18 C3.79,18 2,16.21 2,14 C2,11.79 3.79,10 6,10 L6.71,10 C7.37,7.69 9.48,6 12,6 C15.04,6 17.5,8.46 17.5,11.5 L17.5,12 L19,12 C20.66,12 22,13.34 22,15 C22,16.66 20.66,18 19,18 Z" id="🔹-Icon-Color" fill="#1D1D1D"></path>
-        </g>
-      </g>
-    </g>
-  </g>
-</g>
-</svg>`;
+    for (let i = 0; i < btnsSkinType.length; i++) {
+      btnsSkinType[i].addEventListener("click", function () {
+        event.target.classList.add("active");
+        const skinType = event.target.id;
+        const exposure = calculateSkinTypeData(skinType, uv, uvLabel);
 
-  var sunriseIcon = `<svg class="weather-item-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-<path d="M17 18a5 5 0 0 0-10 0"></path>
-<line x1="12" y1="2" x2="12" y2="9"></line>
-<line x1="4.22" y1="10.22" x2="5.64" y2="11.64"></line>
-<line x1="1" y1="18" x2="3" y2="18"></line>
-<line x1="21" y1="18" x2="23" y2="18"></line>
-<line x1="18.36" y1="11.64" x2="19.78" y2="10.22"></line>
-<line x1="23" y1="22" x2="1" y2="22"></line>
-<polyline points="8 6 12 2 16 6"></polyline>
-</svg>`;
+        document.getElementById("safe-time").innerHTML = exposure[0];
+        document.getElementById("vit-d-time").innerHTML = exposure[1] + "min";
 
-  var sunsetIcon = `<svg class="weather-item-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-<path d="M17 18a5 5 0 0 0-10 0"></path>
-<line x1="12" y1="9" x2="12" y2="2"></line>
-<line x1="4.22" y1="10.22" x2="5.64" y2="11.64"></line>
-<line x1="1" y1="18" x2="3" y2="18"></line>
-<line x1="21" y1="18" x2="23" y2="18"></line>
-<line x1="18.36" y1="11.64" x2="19.78" y2="10.22"></line>
-<line x1="23" y1="22" x2="1" y2="22"></line>
-<polyline points="16 5 12 9 8 5"></polyline>
-</svg>`;
+        for (let i = 0; i < btnsSkinType.length; i++) {
+          if (btnsSkinType[i] === event.target) continue;
+          btnsSkinType[i].classList.remove("active");
+        }
+      });
+    }
+  }
+
+  function calculateSkinTypeData(skinType, uv, uvLabel) {
+    let factor;
+    switch (skinType) {
+      case "type-1":
+        factor = 2.5;
+        return [
+          calculateExposure(factor, uv),
+          checkVitDExposureTime(skinType, uvLabel),
+        ];
+      case "type-3":
+        factor = 4;
+        return [
+          calculateExposure(factor, uv),
+          checkVitDExposureTime(skinType, uvLabel),
+        ];
+      case "type-4":
+        factor = 5;
+        return [
+          calculateExposure(factor, uv),
+          checkVitDExposureTime(skinType, uvLabel),
+        ];
+      case "type-5":
+        factor = 8;
+        return [
+          calculateExposure(factor, uv),
+          checkVitDExposureTime(skinType, uvLabel),
+        ];
+      case "type-6":
+        factor = 15;
+        return [
+          calculateExposure(factor, uv),
+          checkVitDExposureTime(skinType, uvLabel),
+        ];
+    }
+  }
+
+  function calculateExposure(skinFactor, uv) {
+    const exposureInMinutes = Math.round((200 * skinFactor) / (3 * uv));
+    const exposureInHours = Math.floor(exposureInMinutes / 60);
+    const rest = exposureInMinutes % 60;
+    let safeExposureTime = "";
+
+    if (exposureInHours == 0) {
+      safeExposureTime = rest + "min";
+    } else {
+      safeExposureTime = exposureInHours + "h " + rest + "min";
+    }
+    return safeExposureTime;
+  }
+
+  function checkVitDExposureTime(skin, uvLabel) {
+    uvLabel = uvLabel.replace(/\s+/g, "");
+    return vitDExposureTimes[uvLabel][skin];
+  }
+
+  //Long data
+
+  const vitDExposureTimes = {
+    low: {
+      "type-1": "15-20",
+      "type-3": "30-40",
+      "type-4": "40-60",
+      "type-5": "60-80",
+      "type-6": ">80",
+    },
+    moderate: {
+      "type-1": "10-15",
+      "type-3": "20-30",
+      "type-4": "30-40",
+      "type-5": "40-60",
+      "type-6": "60-80",
+    },
+    high: {
+      "type-1": "5-10",
+      "type-3": "15-20",
+      "type-4": "20-30",
+      "type-5": "30-40",
+      "type-6": "40-60",
+    },
+    veryhigh: {
+      "type-1": "2-8",
+      "type-3": "10-15",
+      "type-4": "15-20",
+      "type-5": "20-30",
+      "type-6": "30-40",
+    },
+    extreme: {
+      "type-1": "1-5",
+      "type-3": "5-10",
+      "type-4": "10-15",
+      "type-5": "15-20",
+      "type-6": "20-30",
+    },
+  };
+
+  const fakeResponse = JSON.parse(
+    '{"result":{"uv":5.8835,"uv_time":"2020-06-14T09:18:12.322Z","uv_max":7.7543,"uv_max_time":"2020-06-14T11:35:10.026Z","ozone":316.7,"ozone_time":"2020-06-14T09:06:59.038Z","safe_exposure_time":{"st1":28,"st2":34,"st3":45,"st4":57,"st5":91,"st6":170},"sun_info":{"sun_times":{"solarNoon":"2020-06-14T11:35:10.026Z","nadir":"2020-06-13T23:35:10.026Z","sunrise":"2020-06-14T03:12:16.882Z","sunset":"2020-06-14T19:58:03.170Z","sunriseEnd":"2020-06-14T03:16:55.729Z","sunsetStart":"2020-06-14T19:53:24.323Z","dawn":"2020-06-14T02:22:47.012Z","dusk":"2020-06-14T20:47:33.041Z","nauticalDawn":"2020-06-14T01:02:19.397Z","nauticalDusk":"2020-06-14T22:08:00.655Z","nightEnd":null,"night":null,"goldenHourEnd":"2020-06-14T04:07:54.670Z","goldenHour":"2020-06-14T19:02:25.382Z"},"sun_position":{"azimuth":-0.9575741922053829,"altitude":0.8913679676798139}}}}'
+  );
 });
+
+const fakeForecastResponse = JSON.parse(
+  '{"result":[{"uv":0,"uv_time":"2020-06-17T03:11:50.020Z","sun_position":{"azimuth":-2.300558991888468,"altitude":-0.012853676119981058}},{"uv":0.1066,"uv_time":"2020-06-17T04:11:50.020Z","sun_position":{"azimuth":-2.0976884543522463,"altitude":0.11632311843687819}},{"uv":0.4069,"uv_time":"2020-06-17T05:11:50.020Z","sun_position":{"azimuth":-1.9026768013681659,"altitude":0.26144683023119064}},{"uv":1.0948,"uv_time":"2020-06-17T06:11:50.020Z","sun_position":{"azimuth":-1.7080473839286456,"altitude":0.4166480142261406}},{"uv":2.3931,"uv_time":"2020-06-17T07:11:50.020Z","sun_position":{"azimuth":-1.5033357654461672,"altitude":0.5760998889718945}},{"uv":3.7786,"uv_time":"2020-06-17T08:11:50.020Z","sun_position":{"azimuth":-1.2733422373844654,"altitude":0.7330208058308647}},{"uv":5.6,"uv_time":"2020-06-17T09:11:50.020Z","sun_position":{"azimuth":-0.9952499478473227,"altitude":0.877755517528925}},{"uv":6.8595,"uv_time":"2020-06-17T10:11:50.020Z","sun_position":{"azimuth":-0.6387703195513221,"altitude":0.9945263962089368}},{"uv":7.6637,"uv_time":"2020-06-17T11:11:50.020Z","sun_position":{"azimuth":-0.1883661473555341,"altitude":1.059247757901336}},{"uv":7.6637,"uv_time":"2020-06-17T12:11:50.020Z","sun_position":{"azimuth":0.3016273657580936,"altitude":1.050127263400716}},{"uv":6.6464,"uv_time":"2020-06-17T13:11:50.020Z","sun_position":{"azimuth":0.7313995703606322,"altitude":0.970744514571426}},{"uv":5.1834,"uv_time":"2020-06-17T14:11:50.020Z","sun_position":{"azimuth":1.0667449392142758,"altitude":0.8455289552362888}},{"uv":3.4104,"uv_time":"2020-06-17T15:11:50.020Z","sun_position":{"azimuth":1.3309859044903414,"altitude":0.6968169977145249}},{"uv":1.9474,"uv_time":"2020-06-17T16:11:50.020Z","sun_position":{"azimuth":1.5533195849522707,"altitude":0.5386058003595273}},{"uv":0.901,"uv_time":"2020-06-17T17:11:50.020Z","sun_position":{"azimuth":1.7545183537842346,"altitude":0.37963349183952855}},{"uv":0.3003,"uv_time":"2020-06-17T18:11:50.020Z","sun_position":{"azimuth":1.9484334809632404,"altitude":0.22632811037608222}},{"uv":0.0678,"uv_time":"2020-06-17T19:11:50.020Z","sun_position":{"azimuth":2.144719776418195,"altitude":0.08446193084077307}}]}'
+);
