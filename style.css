@@ -137,6 +137,10 @@ body {
   width: 52px;
 }
 
+.inactive {
+  display: none;
+}
+
 /* Vit D and safe exposure */
 
 #skin-type-data-container {
@@ -167,4 +171,8 @@ body {
 
 .skin-type-data-value {
   font-weight: 800;
+}
+
+#data-container {
+  display: none;
 }

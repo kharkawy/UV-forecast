@@ -1,7 +1,7 @@
 /* TO DO:
-- fix hands data update
 - change class and id naming
-
+- hourly/daily switch
+- initial function
 */
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -30,6 +30,9 @@ document.addEventListener("DOMContentLoaded", function () {
     timeout: 10000,
   };
 
+  let cloudsUV = 0;
+  let cloudsUVLabel = "";
+
   const currentTemp = document.getElementById("current-temp");
   const currentClouds = document.getElementById("current-clouds");
   const sunriseTime = document.getElementById("sunrise-time");
@@ -39,6 +42,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const fahrenheitBtn = document.getElementById("fahrenheit-btn");
   let tempInKelvins = "";
   let tempScale = "C";
+
+  let currentSkinType = "";
 
   const appStatus = document.getElementById("status");
 
@@ -242,11 +247,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const cloudsCoverage = weatherData.current.clouds;
     tempInKelvins = weatherData.current.temp;
 
-    const cloudsUV = calculateCloudsFactor(rawUV, cloudsCoverage);
-    const cloudsUVLabel = findColorAndLevelName(cloudsUV);
+    cloudsUV = calculateCloudsFactor(rawUV, cloudsCoverage);
+    cloudsUVLabel = findColorAndLevelName(cloudsUV);
 
     document.querySelector("#current-conditions-container").style.display =
       "flex";
+    document.querySelector("#skin-type-data-container").style.display = "flex";
 
     document.getElementById("location-city").innerHTML = city;
     document.getElementById("uv-index-value").innerHTML = cloudsUV;
@@ -260,9 +266,32 @@ document.addEventListener("DOMContentLoaded", function () {
 
     sunsetTime.innerHTML = convertDate(uvData.sun_info.sun_times.sunset);
 
-    addListenerSkinBtns(cloudsUV, cloudsUVLabel);
     displayForecast(weatherData, uvforecast);
+
+    displaySkinTypeData();
   }
+
+  const hourlyBtn = document.getElementById("hourly");
+  const dailyBtn = document.getElementById("daily");
+
+  hourlyBtn.addEventListener("click", function () {
+    if (!hourlyBtn.classList.contains("active")) {
+      hourlyBtn.classList.toggle("active");
+      dailyBtn.classList.toggle("active");
+
+      document.getElementById("f-weekly").classList.toggle("inactive");
+      document.getElementById("f-hourly").classList.toggle("inactive");
+    }
+  });
+  dailyBtn.addEventListener("click", function () {
+    if (!dailyBtn.classList.contains("active")) {
+      hourlyBtn.classList.toggle("active");
+      dailyBtn.classList.toggle("active");
+
+      document.getElementById("f-weekly").classList.toggle("inactive");
+      document.getElementById("f-hourly").classList.toggle("inactive");
+    }
+  });
 
   function createWeeklyWeatherForcast(weatherData) {
     const dailyWeather = weatherData.daily;
@@ -312,8 +341,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    console.log(uvUpcomingHours);
-
     for (let i = 1; i < 8; i++) {
       let hour = new Date(hourlyWeather[i].dt * 1000);
       hour = convertDate(hour);
@@ -362,19 +389,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const weeklyForecastHTML = createForecastHTML(
       weeklyForecast,
-      weekForecastIds
+      weekForecastIds,
+      "f-weekly"
     );
     const hourlyForecastHTML = createForecastHTML(
       hourlyForecast,
-      hourForecastIds
+      hourForecastIds,
+      "f-hourly"
     );
+
+    weeklyForecastHTML.classList.add("inactive");
 
     uvForecastContainer.appendChild(weeklyForecastHTML);
     uvForecastContainer.appendChild(hourlyForecastHTML);
   }
 
-  function createForecastHTML(forecast, ids) {
+  function createForecastHTML(forecast, ids, id) {
     const forecastContainer = document.createElement("div");
+    forecastContainer.id = id;
 
     for (let i = 0; i < forecast.length; i++) {
       const forecastUnit = forecast[i];
@@ -485,19 +517,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
   //Skin type data
 
-  function addListenerSkinBtns(uv, uvLabel) {
-    document.getElementById("skin-type-data-container").style.display = "flex";
+  function addListenerSkinBtns() {
     const btnsSkinType = document.querySelectorAll(".btn-skin-type");
 
     for (let i = 0; i < btnsSkinType.length; i++) {
       btnsSkinType[i].addEventListener("click", function () {
         event.target.classList.add("active");
-        const skinType = event.target.id;
-        const exposure = calculateSkinTypeData(skinType, uv, uvLabel);
-
-        document.getElementById("safe-time").innerHTML = exposure[0];
-        document.getElementById("vit-d-time").innerHTML = exposure[1] + "min";
-
+        currentSkinType = event.target.id;
+        displaySkinTypeData();
         for (let i = 0; i < btnsSkinType.length; i++) {
           if (btnsSkinType[i] === event.target) continue;
           btnsSkinType[i].classList.remove("active");
@@ -505,45 +532,40 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
   }
+  addListenerSkinBtns();
 
-  function calculateSkinTypeData(skinType, uv, uvLabel) {
-    let factor;
-    switch (skinType) {
-      case "type-1":
-        factor = 2.5;
-        return [
-          calculateExposure(factor, uv),
-          checkVitDExposureTime(skinType, uvLabel),
-        ];
-      case "type-3":
-        factor = 4;
-        return [
-          calculateExposure(factor, uv),
-          checkVitDExposureTime(skinType, uvLabel),
-        ];
-      case "type-4":
-        factor = 5;
-        return [
-          calculateExposure(factor, uv),
-          checkVitDExposureTime(skinType, uvLabel),
-        ];
-      case "type-5":
-        factor = 8;
-        return [
-          calculateExposure(factor, uv),
-          checkVitDExposureTime(skinType, uvLabel),
-        ];
-      case "type-6":
-        factor = 15;
-        return [
-          calculateExposure(factor, uv),
-          checkVitDExposureTime(skinType, uvLabel),
-        ];
+  function displaySkinTypeData() {
+    if (currentSkinType != "") {
+      const exposure = calculateSkinTypeData();
+      document.getElementById("data-container").style.display = "block";
+      document.getElementById("safe-time").innerHTML = exposure[0];
+      document.getElementById("vit-d-time").innerHTML = exposure[1] + "min";
     }
   }
 
-  function calculateExposure(skinFactor, uv) {
-    const exposureInMinutes = Math.round((200 * skinFactor) / (3 * uv));
+  function calculateSkinTypeData() {
+    let factor;
+    switch (currentSkinType) {
+      case "type-1":
+        factor = 2.5;
+        return [calculateExposure(factor), checkVitDExposureTime()];
+      case "type-3":
+        factor = 4;
+        return [calculateExposure(factor), checkVitDExposureTime()];
+      case "type-4":
+        factor = 5;
+        return [calculateExposure(factor), checkVitDExposureTime()];
+      case "type-5":
+        factor = 8;
+        return [calculateExposure(factor), checkVitDExposureTime()];
+      case "type-6":
+        factor = 15;
+        return [calculateExposure(factor), checkVitDExposureTime()];
+    }
+  }
+
+  function calculateExposure(skinFactor) {
+    const exposureInMinutes = Math.round((200 * skinFactor) / (3 * cloudsUV));
     const exposureInHours = Math.floor(exposureInMinutes / 60);
     const rest = exposureInMinutes % 60;
     let safeExposureTime = "";
@@ -556,9 +578,9 @@ document.addEventListener("DOMContentLoaded", function () {
     return safeExposureTime;
   }
 
-  function checkVitDExposureTime(skin, uvLabel) {
-    uvLabel = uvLabel.replace(/\s+/g, "");
-    return vitDExposureTimes[uvLabel][skin];
+  function checkVitDExposureTime() {
+    let uvLabelConverted = cloudsUVLabel.replace(/\s+/g, "");
+    return vitDExposureTimes[uvLabelConverted][currentSkinType];
   }
 
   //Long data
