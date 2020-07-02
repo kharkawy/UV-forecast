@@ -137,8 +137,64 @@ body {
   width: 52px;
 }
 
+/* Forecast */
+
+#uv-forecast {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 50px;
+}
+
+#uv-forecast__content {
+  margin-top: 25px;
+}
+
 .inactive {
   display: none;
+}
+
+.btn-weather {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 10px;
+}
+
+.btn-weather-active {
+  text-decoration: underline;
+}
+
+.forecast-element {
+  font-family: "Overpass", sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  margin: 0 10px;
+}
+
+.uv-forecast__row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  max-width: 600px;
+}
+
+#uv-forecast__daily-weekday {
+  width: 84px;
+}
+#uv-forecast__daily-max-temp,
+#uv-forecast__daily-min-temp {
+  width: 42px;
+  text-align: right;
+}
+
+#uv-forecast__daily-uv-value {
+  width: 17px;
+  text-align: right;
+}
+
+#uv-forecast__daily-uv-label {
+  width: 69px;
+  text-align: left;
 }
 
 /* Vit D and safe exposure */

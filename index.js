@@ -1,7 +1,7 @@
 /* TO DO:
 - change class and id naming
-- hourly/daily switch
 - initial function
+- fix th weather issue
 */
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -32,6 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   let cloudsUV = 0;
   let cloudsUVLabel = "";
+  let cloudsUVColor = "";
 
   const currentTemp = document.getElementById("current-temp");
   const currentClouds = document.getElementById("current-clouds");
@@ -40,7 +41,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const celsiusBtn = document.getElementById("celsius-btn");
   const fahrenheitBtn = document.getElementById("fahrenheit-btn");
-  let tempInKelvins = "";
   let tempScale = "C";
 
   let currentSkinType = "";
@@ -245,10 +245,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const rawUV = uvData.uv;
     const cloudsCoverage = weatherData.current.clouds;
-    tempInKelvins = weatherData.current.temp;
+
+    const body = document.body.style;
 
     cloudsUV = calculateCloudsFactor(rawUV, cloudsCoverage);
-    cloudsUVLabel = findColorAndLevelName(cloudsUV);
+    cloudsUVLabel = findColorAndLevelName(cloudsUV)[0];
+    cloudsUVColor = findColorAndLevelName(cloudsUV)[1];
+    body.backgroundColor = cloudsUVColor;
 
     document.querySelector("#current-conditions-container").style.display =
       "flex";
@@ -258,7 +261,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("uv-index-value").innerHTML = cloudsUV;
     document.getElementById("uv-index-level-name").innerHTML = cloudsUVLabel;
 
-    currentTemp.innerHTML = convertTemperature(tempInKelvins, tempScale);
+    currentTemp.innerHTML = weatherData.current.temp;
 
     currentClouds.innerHTML = cloudsCoverage + `%`;
 
@@ -271,29 +274,37 @@ document.addEventListener("DOMContentLoaded", function () {
     displaySkinTypeData();
   }
 
-  const hourlyBtn = document.getElementById("hourly");
-  const dailyBtn = document.getElementById("daily");
+  const hourlyBtn = document.getElementById("uv-forecast__btn-hourly");
+  const dailyBtn = document.getElementById("uv-forecast__btn-daily");
 
   hourlyBtn.addEventListener("click", function () {
-    if (!hourlyBtn.classList.contains("active")) {
-      hourlyBtn.classList.toggle("active");
-      dailyBtn.classList.toggle("active");
+    if (!hourlyBtn.classList.contains("btn-weather-active")) {
+      hourlyBtn.classList.toggle("btn-weather-active");
+      dailyBtn.classList.toggle("btn-weather-active");
 
-      document.getElementById("f-weekly").classList.toggle("inactive");
-      document.getElementById("f-hourly").classList.toggle("inactive");
+      document
+        .getElementById("uv-forecast__daily")
+        .classList.toggle("inactive");
+      document
+        .getElementById("uv-forecast__hourly")
+        .classList.toggle("inactive");
     }
   });
   dailyBtn.addEventListener("click", function () {
-    if (!dailyBtn.classList.contains("active")) {
-      hourlyBtn.classList.toggle("active");
-      dailyBtn.classList.toggle("active");
+    if (!dailyBtn.classList.contains("btn-weather-active")) {
+      hourlyBtn.classList.toggle("btn-weather-active");
+      dailyBtn.classList.toggle("btn-weather-active");
 
-      document.getElementById("f-weekly").classList.toggle("inactive");
-      document.getElementById("f-hourly").classList.toggle("inactive");
+      document
+        .getElementById("uv-forecast__daily")
+        .classList.toggle("inactive");
+      document
+        .getElementById("uv-forecast__hourly")
+        .classList.toggle("inactive");
     }
   });
 
-  function createWeeklyWeatherForcast(weatherData) {
+  function createDailyWeatherForcast(weatherData) {
     const dailyWeather = weatherData.daily;
     const daysOfWeek = [
       "Sunday",
@@ -308,20 +319,15 @@ document.addEventListener("DOMContentLoaded", function () {
     for (let i = 1; i < dailyWeather.length; i++) {
       const numberDayOfWeek = new Date(dailyWeather[i].dt * 1000).getDay();
       const nameDayOfWeek = daysOfWeek[numberDayOfWeek];
-      const maxTemp = convertTemperature(dailyWeather[i].temp.max, tempScale);
-      const minTemp = convertTemperature(dailyWeather[i].temp.min, tempScale);
+      const maxTemp = dailyWeather[i].temp.max;
+      const minTemp = dailyWeather[i].temp.min;
       const description = dailyWeather[i].weather[0].description;
       const clouds = dailyWeather[i].clouds;
       const uv = dailyWeather[i].uvi;
       const convertedUV = calculateCloudsFactor(uv, clouds);
+      const uvLabel = findColorAndLevelName(convertedUV)[0];
 
-      forecast.push([
-        nameDayOfWeek,
-        maxTemp,
-        minTemp,
-        description,
-        convertedUV,
-      ]);
+      forecast.push([nameDayOfWeek, maxTemp, minTemp, convertedUV, uvLabel]);
     }
     return forecast;
   }
@@ -344,7 +350,7 @@ document.addEventListener("DOMContentLoaded", function () {
     for (let i = 1; i < 8; i++) {
       let hour = new Date(hourlyWeather[i].dt * 1000);
       hour = convertDate(hour);
-      const temp = convertTemperature(hourlyWeather[i].temp, tempScale);
+      const temp = hourlyWeather[i].temp;
       const description = hourlyWeather[i].weather[0].description;
       const clouds = hourlyWeather[i].clouds;
       let uv = 0;
@@ -358,49 +364,49 @@ document.addEventListener("DOMContentLoaded", function () {
         );
       }
 
-      forecast.push([hour, temp, description, uv]);
+      forecast.push([hour, temp, uv]);
     }
 
     return forecast;
   }
 
   function displayForecast(weatherData, uvforecast) {
-    const weeklyForecast = createWeeklyWeatherForcast(weatherData);
+    const dailyForecast = createDailyWeatherForcast(weatherData);
     const hourlyForecast = createHourlyWeatherForcast(weatherData, uvforecast);
 
     const weekForecastIds = [
-      "w-forecast-weekday",
-      "w-forecast-max-temp",
-      "w-forecast-min-temp",
-      "w-forecast-description",
-      "w-forecast-uv-value",
+      "uv-forecast__daily-weekday",
+      "uv-forecast__daily-max-temp",
+      "uv-forecast__daily-min-temp",
+      "uv-forecast__daily-uv-value",
+      "uv-forecast__daily-uv-label",
     ];
 
     const hourForecastIds = [
-      "h-forecast-hour",
-      "h-forecast-temp",
-      "h-forecast-description",
-      "h-forecast-uv-value",
+      "uv-forecast__hourly-time",
+      "uv-forecast__hourly-temp",
+      "uv-forecast__hourly-uv-value",
+      "uv-forecast__hourly-uv-label",
     ];
 
-    const uvForecastContainer = document.querySelector("#uv-forecast");
+    const uvForecastContainer = document.querySelector("#uv-forecast__content");
 
     uvForecastContainer.innerHTML = "";
 
-    const weeklyForecastHTML = createForecastHTML(
-      weeklyForecast,
+    const dailyForecastHTML = createForecastHTML(
+      dailyForecast,
       weekForecastIds,
-      "f-weekly"
+      "uv-forecast__daily"
     );
     const hourlyForecastHTML = createForecastHTML(
       hourlyForecast,
       hourForecastIds,
-      "f-hourly"
+      "uv-forecast__hourly"
     );
 
-    weeklyForecastHTML.classList.add("inactive");
+    dailyForecastHTML.classList.add("inactive");
 
-    uvForecastContainer.appendChild(weeklyForecastHTML);
+    uvForecastContainer.appendChild(dailyForecastHTML);
     uvForecastContainer.appendChild(hourlyForecastHTML);
   }
 
@@ -411,15 +417,17 @@ document.addEventListener("DOMContentLoaded", function () {
     for (let i = 0; i < forecast.length; i++) {
       const forecastUnit = forecast[i];
       const forecastUnitContainer = document.createElement("div");
-
+      forecastUnitContainer.classList.add("uv-forecast__row");
       for (let j = 0; j < forecastUnit.length; j++) {
         const forecastUnitValue = document.createElement("span");
         forecastUnitValue.innerHTML = forecastUnit[j];
         forecastUnitValue.id = ids[j];
+        forecastUnitValue.classList.add("forecast-element");
 
         if (
-          typeof forecastUnit[j] === "string" &&
-          forecastUnit[j].includes("deg")
+          forecastUnitValue.id === "uv-forecast__hourly-temp" ||
+          forecastUnitValue.id === "uv-forecast__daily-min-temp" ||
+          forecastUnitValue.id === "uv-forecast__daily-max-temp"
         ) {
           forecastUnitValue.classList.add("temp");
         }
@@ -440,23 +448,16 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function findColorAndLevelName(uv) {
-    const body = document.body.style;
-
     if (uv >= 0 && uv < 3) {
-      body.backgroundColor = "#709D4F";
-      return "low";
+      return ["low", "#709D4F"];
     } else if (uv >= 3 && uv < 6) {
-      body.backgroundColor = "#F9A825";
-      return "moderate";
+      return ["moderate", "#F9A825"];
     } else if (uv >= 6 && uv < 8) {
-      body.backgroundColor = "#EF6C00";
-      return "high";
+      return ["high", "#EF6C00"];
     } else if (uv >= 8 && uv < 11) {
-      body.backgroundColor = "#B71C1C";
-      return "very high";
+      return ["very high", "#B71C1C"];
     } else if (uv >= 11) {
-      body.backgroundColor = "#854BA9";
-      return "extreme";
+      return ["extreme", "#854BA9"];
     } else {
       return "not found";
     }
@@ -484,7 +485,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  function convertTemperature(temp, tempScale) {
+  function convertTemperature(temp) {
     if (!temp) {
       return;
     }
@@ -496,10 +497,11 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function updateTemperatureInUI() {
-    const tempUI = document.querySelectorAll(".temp");
+    const temp = document.querySelectorAll(".temp");
 
-    for (let i = 0; i < tempUI.length; i++) {
-      tempUI[i].innerHTML = convertTemperature(tempInKelvins, tempScale);
+    for (let i = 0; i < temp.length; i++) {
+      tempValue = temp[i].innerHTML.replace(/\D/g, "");
+      console.log(convertTemperature(tempValue));
     }
   }
 
