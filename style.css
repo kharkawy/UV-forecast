@@ -10,11 +10,22 @@
 body {
   margin: 0;
   background-color: #ffffff;
+  transition: background-color 2s ease;
+}
+
+.website-title {
+  display: block;
+  width: 320px;
+  margin: 50px auto 0 auto;
+  font-family: "Overpass", sans-serif;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 20px;
 }
 
 /* Navigation */
 
-#navigation {
+.navigation {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -46,31 +57,24 @@ body {
 
 .btn-temp {
   width: 18px;
+  margin: 0 5px;
 }
 
 .btn-temp-active {
   font-weight: 800;
 }
 
-#geolocation-btn {
+.geolocation-btn {
   margin: 0 20px;
 }
 
-#celsius-btn {
-  margin-right: 5px;
-}
-
-#fahrenheit-btn {
-  margin-left: 5px;
-}
-
-#separator {
+.separator {
   height: 20px;
   border-left: 1.25px solid #000000;
 }
 
 /* Content */
-#current-conditions-container {
+.main-content {
   font-family: "Overpass", sans-serif;
   display: none;
   flex-direction: column;
@@ -83,23 +87,23 @@ body {
   font-weight: 800;
 }
 
-#location-city {
+.location-name {
   font-size: 30px;
   margin-bottom: 30px;
 }
 
-#uv-index-value {
+.uv-index-value {
   font-size: 120px;
   line-height: 120px;
 }
 
-#uv-index-level-name {
+.uv-index-label {
   font-size: 20px;
   text-transform: uppercase;
   margin-bottom: 50px;
 }
 
-#weather-container {
+.current-weather-container {
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
@@ -139,68 +143,78 @@ body {
 
 /* Forecast */
 
-#uv-forecast {
+.uv-forecast__forecast-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-top: 50px;
 }
 
-#uv-forecast__content {
-  margin-top: 25px;
-}
-
-.inactive {
-  display: none;
-}
-
-.btn-weather {
+.btn-forecast-mode {
   font-size: 20px;
   font-weight: 700;
   margin: 0 10px;
 }
 
-.btn-weather-active {
+.btn-forecast-mode-active {
   text-decoration: underline;
 }
 
-.forecast-element {
-  font-family: "Overpass", sans-serif;
-  font-weight: 700;
-  font-size: 16px;
-  margin: 0 10px;
+.btn-forecast-mode:hover {
+  background: linear-gradient(#e66465, #9198e5);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.uv-forecast__row {
+.forecast-content {
+  margin-top: 25px;
+}
+
+.forecast-row {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  align-items: center;
   max-width: 600px;
+  font-family: "Overpass", sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  margin: 10px 0;
 }
 
-#uv-forecast__daily-weekday {
-  width: 84px;
+.forecast-hour {
+  text-align: left;
+  width: 50px;
 }
-#uv-forecast__daily-max-temp,
-#uv-forecast__daily-min-temp {
-  width: 42px;
-  text-align: right;
-}
-
-#uv-forecast__daily-uv-value {
-  width: 17px;
-  text-align: right;
+.weekday {
+  text-align: left;
+  width: 30px;
 }
 
-#uv-forecast__daily-uv-label {
-  width: 69px;
+.daily-temp {
+  width: 100px;
+}
+
+.hourly-temp {
+  width: 60px;
+}
+
+.forecast-icon {
+  width: 30px;
+}
+
+.forecast-uv-value {
+  width: 60px;
+}
+
+.forecast-uv-label {
+  width: 80px;
   text-align: left;
 }
 
 /* Vit D and safe exposure */
 
 #skin-type-data-container {
-  display: none;
   align-items: center;
   flex-direction: column;
 }
@@ -216,13 +230,19 @@ body {
   font-size: 40px;
 }
 
+.exposure-times {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .skin-type-data {
   min-width: 300px;
   max-width: 375px;
   font-size: 16px;
   font-family: "Overpass", sans-serif;
-  text-align: center;
   font-weight: 400;
+  text-align: left;
 }
 
 .skin-type-data-value {
