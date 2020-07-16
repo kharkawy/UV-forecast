@@ -3,8 +3,9 @@
 	<head>
 		<meta charset="UTF-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-		<title>UVForecast</title>
-		<link rel="stylesheet" href="style.css">
+		<title>UV Weather</title>
+		<link rel="stylesheet" href="styles/style.css">
+		
 	</head>
 	<body>
 		<nav id="navigation" class="nav">
@@ -30,19 +31,19 @@
 					<p id="uv-index-label" class="conditions-item uv-index-label"></p>
 					<div class="current-weather-container">
 						<div class="weather-item">
-							<img src="thermometer.svg" alt="" class="weather-item-icon">
+							<img src="icons/thermometer.svg" alt="" class="weather-item-icon">
 							<p id="current-temp" class="weather-item-value"></p>
 						</div>
 						<div class="weather-item">
-							<img src="cloud.svg" alt="" class="weather-item-icon">
+							<img src="icons/cloud.svg" alt="" class="weather-item-icon">
 							<p id="current-clouds" class="weather-item-value"></p>
 						</div>
 						<div class="weather-item">
-							<img src="sunrise.svg" alt="" class="weather-item-icon">
+							<img src="icons/sunrise.svg" alt="" class="weather-item-icon">
 							<p id="sunrise-time" class="weather-item-value"></p>
 						</div>
 						<div class="weather-item">
-							<img src="sunset.svg" alt="" class="weather-item-icon">
+							<img src="icons/sunset.svg" alt="" class="weather-item-icon">
 							<p id="sunset-time" class="weather-item-value"></p>
 						</div>
 					</div>
@@ -74,8 +75,7 @@
 		</main>
 		
 
-
 		<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDu8k938-q1oBmjJK7uMrmNNBLOTccMCFo&libraries=places"></script>
-		<script src="index.mjs" type="module"></script>
+		<script src="scripts/index.mjs" type="module"></script>
 	</body>
 </html></body></html>

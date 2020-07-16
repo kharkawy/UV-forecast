@@ -1,15 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Overpass:wght@300;400;700;800&display=swap");
 
-/* TO DO
-- app status
-- style focusing on elements
-- animations 
-- hovering on buttons 
-*/
-
 body {
   margin: 0;
-  background-color: #ffffff;
+  background-color: #acd0e7;
   transition: background-color 2s ease;
 }
 
@@ -71,6 +64,7 @@ body {
 
 .btn-temp {
   margin: 0 5px;
+  transition: color 0.25s ease;
 }
 
 .btn-temp-active {
@@ -82,7 +76,9 @@ body {
 }
 .geolocation-icon {
   height: 24px;
+  transition: fill 0.25s ease;
 }
+
 .separator {
   height: 20px;
   border-left: 1.25px solid #000000;
@@ -194,6 +190,7 @@ body {
   font-size: 20px;
   font-weight: 400;
   margin-right: 10px;
+  transition: color 0.25s ease;
 }
 
 .btn-forecast-mode-active {
@@ -266,11 +263,7 @@ body {
   margin: 0 10px;
   font-size: 40px;
   opacity: 0.5;
-  transition: opacity 0.5s ease;
-}
-
-.btn-skin-type:hover {
-  opacity: 1;
+  transition: opacity 0.25s ease;
 }
 
 .btn-skin-type-active {
@@ -334,8 +327,9 @@ body {
 
   .grid-container {
     display: grid;
-    grid-template-columns: 300px 100px 440px;
+    grid-template-columns: 300px 440px;
     grid-template-rows: 550px 220px;
+    column-gap: 100px;
   }
 
   .uv-index-value {
@@ -343,13 +337,12 @@ body {
   }
 
   .forecast-container {
-    grid-column: 3/4;
     margin-top: 0;
     align-items: flex-start;
   }
 
   .sunlight-exposure-container {
-    grid-column: 3/4;
+    grid-column: 2/3;
     align-items: flex-start;
   }
 
@@ -384,5 +377,21 @@ body {
 
   .sunlight-exposure-container {
     margin: 0;
+  }
+
+  .btn-temp:hover {
+    color: #ffffff;
+  }
+
+  .geolocation-btn:hover .geolocation-icon {
+    fill: #ffffff;
+  }
+
+  .btn-skin-type:hover {
+    opacity: 1;
+  }
+
+  .btn-forecast-mode:hover {
+    color: #ffffff;
   }
 }

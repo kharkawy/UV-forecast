@@ -4,6 +4,8 @@ import {
   mapUVIndexToLabel,
   transformDailyForcast,
   transformHourlyForcast,
+  focusWhenKeyboard,
+  addFavicon,
 } from "./utils.js";
 
 import { locationManager } from "./location.js";
@@ -46,6 +48,9 @@ function main() {
   temperatureManager(onTemperatureUnitChanged);
   forecastModeManager(onForecastModeChanged);
   skinTypeManager(onSkinTypeChanged);
+
+  focusWhenKeyboard();
+  addFavicon();
 
   function setLocationState(location) {
     lat = location.lat;

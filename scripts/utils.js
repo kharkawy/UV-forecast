@@ -45,7 +45,7 @@ export function mapUVIndexToColor(uv) {
 }
 
 export function extractTimeFromDate(date) {
-  return new Date(date).toLocaleTimeString([], {
+  return new Date(date).toLocaleTimeString(["nl-NL"], {
     hour: "2-digit",
     minute: "2-digit",
   });
@@ -155,4 +155,59 @@ function calculateExposure(factor, uv) {
 export function vitDExposure(skinType, uvLabel) {
   uvLabel.replace(/\s+/g, "");
   return vitDExposureTimes[uvLabel][skinType];
+}
+
+export function focusWhenKeyboard() {
+  if (!document || !window) {
+    return;
+  }
+
+  const onKeyPressedStyle = `
+  *:focus{
+    outline: 1px solid black !important;
+  }`;
+  const onMousePressedStyle = `
+  *:focus {
+    outline: none;
+  }`;
+
+  const style = document.createElement("style");
+
+  document.addEventListener("keydown", function (event) {
+    if (event.keyCode === 9) {
+      style.innerHTML = "";
+      if (style.styleSheet) {
+        style.styleSheet.cssText = onKeyPressedStyle;
+      } else {
+        style.appendChild(document.createTextNode(onKeyPressedStyle));
+      }
+      document.getElementsByTagName("head")[0].appendChild(style);
+    }
+  });
+
+  document.addEventListener("mousedown", function () {
+    style.innerHTML = "";
+    if (style.styleSheet) {
+      style.styleSheet.cssText = onMousePressedStyle;
+    } else {
+      style.appendChild(document.createTextNode(onMousePressedStyle));
+    }
+    document.getElementsByTagName("head")[0].appendChild(style);
+  });
+}
+
+export function addFavicon() {
+  const link = document.createElement("link");
+  link.rel = "icon";
+  link.type = "image/svg";
+  if (
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  ) {
+    link.href = "favicon-dark.svg";
+    document.getElementsByTagName("head")[0].appendChild(link);
+  } else {
+    link.href = "favicon.svg";
+    document.getElementsByTagName("head")[0].appendChild(link);
+  }
 }
