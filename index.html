@@ -7,63 +7,75 @@
 		<link rel="stylesheet" href="style.css">
 	</head>
 	<body>
-		<h1 class="website-title">UV forecast</h1>
-		<nav id="navigation" class="navigation">
-			<input id="location-input" class="input" type="text"/>
-			<button id="geolocation-btn" class="btn geolocation-btn">
-				<svg xmlns="http://www.w3.org/2000/svg" height="24" viewbox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
-			</button>
-			<button id="uv-forecast__temperature-btn" class="btn btn-temp btn-temp-active" data-unit="celsius">&degC</button>
-			<span class="separator"></span>
-			<button id="uv-forecast__temperature-btn" class="btn btn-temp" data-unit="fahrenheit">&degF</button>
+		<nav id="navigation" class="nav">
+			<h1 class="website-title">UV weather</h1>
+			<div class="nav-controls">
+				<input id="location-input" class="input" type="text"/>
+				<button id="geolocation-btn" class="btn geolocation-btn">
+					<svg class="geolocation-icon" xmlns="http://www.w3.org/2000/svg"  viewbox="0 0 24 24" ><path d="M0 0h24v24H0z" fill="none"/><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+				</button>
+				<button id="uv-forecast__temperature-btn" class="btn btn-temp btn-temp-active" data-unit="celsius">&degC</button>
+				<span class="separator"></span>
+				<button id="uv-forecast__temperature-btn" class="btn btn-temp" data-unit="fahrenheit">&degF</button>
+			</div>
 		</nav>
-		<p id="status"></p>
+		<p id="status" class="status"></p>
 
 		<main id="main-content" class="main-content">
-			<h2 id="location-name" class="conditions-item location-name"></h2>
-			<h1 id="uv-index-value" class="conditions-item uv-index-value"></h1>
-			<h3 id="uv-index-label" class="conditions-item uv-index-label"></h3>
-			<div class="current-weather-container">
-				<div class="weather-item">
-					<img src="thermometer.svg" alt="" class="weather-item-icon">
-					<p id="current-temp" class="weather-item-value"></p>
+			<div class="grid-container">
+				<div class="current-conditions">
+					<h2 class="section-title">Right now</h2>
+					<p id="location-name" class="conditions-item location-name"></p>
+					<p id="uv-index-value" class="conditions-item uv-index-value"></p>
+					<p id="uv-index-label" class="conditions-item uv-index-label"></p>
+					<div class="current-weather-container">
+						<div class="weather-item">
+							<img src="thermometer.svg" alt="" class="weather-item-icon">
+							<p id="current-temp" class="weather-item-value"></p>
+						</div>
+						<div class="weather-item">
+							<img src="cloud.svg" alt="" class="weather-item-icon">
+							<p id="current-clouds" class="weather-item-value"></p>
+						</div>
+						<div class="weather-item">
+							<img src="sunrise.svg" alt="" class="weather-item-icon">
+							<p id="sunrise-time" class="weather-item-value"></p>
+						</div>
+						<div class="weather-item">
+							<img src="sunset.svg" alt="" class="weather-item-icon">
+							<p id="sunset-time" class="weather-item-value"></p>
+						</div>
+					</div>
+					<div id="uv-forecast__current-weather-details" class="weather-details-container"></div>
 				</div>
-				<div class="weather-item">
-					<img src="cloud.svg" alt="" class="weather-item-icon">
-					<p id="current-clouds" class="weather-item-value"></p>
+	
+				<div class="forecast-container">
+					<h2 class="section-title">Forecast</h2>
+					<div id="uv-forecast__forecast-btns">
+						<button id="uv-forecast__forecast-btn" class="btn btn-forecast-mode" data-mode="hourly">Hourly</button>
+						<button id="uv-forecast__forecast-btn" class="btn btn-forecast-mode" data-mode="daily">Daily</button>
+					</div>
+					<div id="uv-forecast__forecast-content" class="forecast-content"></div>
 				</div>
-				<div class="weather-item">
-					<img src="sunrise.svg" alt="" class="weather-item-icon">
-					<p id="sunrise-time" class="weather-item-value"></p>
-				</div>
-				<div class="weather-item">
-					<img src="sunset.svg" alt="" class="weather-item-icon">
-					<p id="sunset-time" class="weather-item-value"></p>
+	
+				<div id="uv-forecast__sunlight-exposure" class="sunlight-exposure-container">
+					<h2 class="section-title">Sunlight safe exposure</h2>
+					<div id="uv-forecast__skin-btns" class="skin-btns">
+						<button id="uv-forecast__skin-btn" data-skin="type-6" class="btn btn-skin-type">&#9995;&#127999;</button>
+						<button id="uv-forecast__skin-btn" data-skin="type-5" class="btn btn-skin-type">&#9995;&#127998;</button>
+						<button id="uv-forecast__skin-btn" data-skin="type-4" class="btn btn-skin-type">&#9995;&#127997;</button>
+						<button id="uv-forecast__skin-btn" data-skin="type-3" class="btn btn-skin-type">&#9995;&#127996;</button>
+						<button id="uv-forecast__skin-btn" data-skin="type-1" class="btn btn-skin-type">&#9995;&#127995;</button>
+					</div>
+					<div id="uv-forecast__exposure-times" class="exposure-times"></div>
 				</div>
 			</div>
 
-			<div class="uv-forecast__forecast-container">
-				<div id="uv-forecast__forecast-btns">
-					<button id="uv-forecast__forecast-btn" class="btn btn-forecast-mode" data-mode="hourly">Hourly</button>
-					<button id="uv-forecast__forecast-btn" class="btn btn-forecast-mode" data-mode="daily">Daily</button>
-				</div>
-				<div id="uv-forecast__forecast-content" class="forecast-content"></div>
-			</div>
-
-			<div id="skin-type-data-container">
-				<div id="skin-type-btns-container">
-					<button id="uv-forecast__skin-btn" data-skin="type-6" class="btn btn-skin-type">&#9995;&#127999;</button>
-					<button id="uv-forecast__skin-btn" data-skin="type-5" class="btn btn-skin-type">&#9995;&#127998;</button>
-					<button id="uv-forecast__skin-btn" data-skin="type-4" class="btn btn-skin-type">&#9995;&#127997;</button>
-					<button id="uv-forecast__skin-btn" data-skin="type-3" class="btn btn-skin-type">&#9995;&#127996;</button>
-					<button id="uv-forecast__skin-btn" data-skin="type-1" class="btn btn-skin-type">&#9995;&#127995;</button>
-				</div>
-				<div id="uv-forecast__exposure-times" class="exposure-times"></div>
-			</div>
 		</main>
+		
 
 
 		<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDu8k938-q1oBmjJK7uMrmNNBLOTccMCFo&libraries=places"></script>
-		<script src="index_new.js"></script>
+		<script src="index.mjs" type="module"></script>
 	</body>
 </html></body></html>

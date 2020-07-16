@@ -1,0 +1,25 @@
+{
+  "name": "UV-forecast",
+  "version": "1.0.0",
+  "description": "",
+  "main": "config.js",
+  "scripts": {
+    "e2e": "npx cypress TODO",
+    "start": "npx serve"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kharkawy/UV-forecast.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kharkawy/UV-forecast/issues"
+  },
+  "homepage": "https://github.com/kharkawy/UV-forecast#readme",
+  "dependencies": {
+    "cypress": "^4.10.0",
+    "serve": "^11.3.2"
+  }
+}
