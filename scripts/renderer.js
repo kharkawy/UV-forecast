@@ -7,17 +7,19 @@ import {
 import { iconMap } from "./consts.js";
 
 export function renderer() {
-  const $locationInput = document.querySelector("#location-input");
-  const $content = document.querySelector(".main-content");
-  const $locationName = document.querySelector("#location-name");
-  const $uvIndex = document.querySelector("#uv-index-value");
-  const $uvLabel = document.querySelector("#uv-index-label");
-  const $currentTemp = document.querySelector("#current-temp");
-  const $currentCloudCover = document.querySelector("#current-clouds");
-  const $sunriseTime = document.querySelector("#sunrise-time");
-  const $sunsetTime = document.querySelector("#sunset-time");
+  const $locationInput = document.querySelector("#uv-forecast__location-input");
+  const $content = document.querySelector("#uv-forecast__main-content");
+  const $locationName = document.querySelector("#uv-forecast__location-name");
+  const $uvIndex = document.querySelector("#uv-forecast__uv-index-value");
+  const $uvLabel = document.querySelector("#uv-forecast__uv-index-label");
+  const $currentTemp = document.querySelector("#uv-forecast__current-temp");
+  const $currentCloudCover = document.querySelector(
+    "#uv-forecast__current-clouds"
+  );
+  const $sunriseTime = document.querySelector("#uv-forecast__sunrise-time");
+  const $sunsetTime = document.querySelector("#uv-forecast__sunset-time");
   const $weatherDetails = document.querySelector(
-    "#uv-forecast__current-weather-details"
+    "#uv-forecast__current-weather-with-text"
   );
   const $forecastHourlyBtn = document.querySelector("[data-mode='hourly']");
   const $forecastDailyBtn = document.querySelector("[data-mode='daily']");

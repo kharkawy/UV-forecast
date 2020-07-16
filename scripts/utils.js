@@ -157,7 +157,7 @@ export function vitDExposure(skinType, uvLabel) {
   return vitDExposureTimes[uvLabel][skinType];
 }
 
-export function focusWhenKeyboard() {
+export function focusWhenTabPressed() {
   if (!document || !window) {
     return;
   }

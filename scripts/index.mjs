@@ -4,7 +4,7 @@ import {
   mapUVIndexToLabel,
   transformDailyForcast,
   transformHourlyForcast,
-  focusWhenKeyboard,
+  focusWhenTabPressed,
   addFavicon,
 } from "./utils.js";
 
@@ -49,7 +49,7 @@ function main() {
   forecastModeManager(onForecastModeChanged);
   skinTypeManager(onSkinTypeChanged);
 
-  focusWhenKeyboard();
+  focusWhenTabPressed();
   addFavicon();
 
   function setLocationState(location) {

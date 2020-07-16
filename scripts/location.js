@@ -3,7 +3,7 @@ import { errorManager } from "./error.js";
 export function locationManager(onLocationChanged) {
   //Autocomplete
 
-  const locationInput = document.getElementById("location-input");
+  const locationInput = document.getElementById("uv-forecast__location-input");
 
   const autocompleteOptions = {
     types: ["(cities)"],
@@ -43,7 +43,9 @@ export function locationManager(onLocationChanged) {
 
   //Geolocation
 
-  const geolocationBtn = document.getElementById("geolocation-btn");
+  const geolocationBtn = document.getElementById(
+    "uv-forecast__geolocation-btn"
+  );
 
   const geolocationOptions = {
     timeout: 10000,

@@ -8,32 +8,33 @@ body {
 
 .website-title {
   font-family: "Overpass", sans-serif;
+  font-size: 20px;
   font-weight: 800;
   text-transform: uppercase;
-  font-size: 20px;
 }
 
 .section-title {
+  margin: 20px 0;
+  font-size: 15px;
   font-weight: 800;
   text-transform: uppercase;
-  font-size: 15px;
   opacity: 0.5;
-  margin: 20px 0;
 }
 
 .status {
   font-family: "Overpass", sans-serif;
   text-align: center;
 }
+
 /* Navigation */
 
-.nav {
+.navigation {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.nav-controls {
+.navigation-controls {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -52,12 +53,12 @@ body {
 }
 
 .btn {
-  background: none;
-  border: none;
   margin: 0;
   padding: 0;
-  font-size: 16px;
+  border: none;
+  background: none;
   font-family: "Overpass", sans-serif;
+  font-size: 16px;
   font-weight: 300;
   cursor: pointer;
 }
@@ -86,36 +87,37 @@ body {
 
 /* Content */
 .main-content {
-  font-family: "Overpass", sans-serif;
   display: none;
   flex-direction: column;
-  text-align: center;
   margin-top: 80px;
+  font-family: "Overpass", sans-serif;
+  text-align: center;
 }
 
 .conditions-item {
+  display: block;
   margin: 0;
   font-weight: 800;
 }
 
 .location-name {
-  font-size: 30px;
   margin-bottom: 30px;
+  font-size: 30px;
 }
 
 .uv-index-value {
+  margin-bottom: 25px;
   font-size: 120px;
   line-height: 120px;
-  margin-bottom: 25px;
 }
 
 .uv-index-label {
+  margin-bottom: 50px;
   font-size: 20px;
   text-transform: uppercase;
-  margin-bottom: 50px;
 }
 
-.current-weather-container {
+.current-weather-with-icons {
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
@@ -145,28 +147,29 @@ body {
   width: 30px;
 }
 .weather-item-value {
+  width: 52px;
   height: 20px;
   margin: 0 0 0 10px;
   font-size: 20px;
   font-weight: 700;
-  width: 52px;
 }
 
-.weather-details-container {
-  margin: 0 auto;
+.current-weather-with-text {
   width: 200px;
+  margin: 0 auto;
 }
+
 .curent-weather-row {
-  align-items: center;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 10px;
 }
 
 .weather-detail-value {
+  width: 80px;
   font-size: 20px;
   font-weight: 700;
-  width: 80px;
   text-align: left;
 }
 .weather-item-label {
@@ -182,20 +185,20 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 50px;
   height: 500px;
+  margin-top: 50px;
 }
 
 .btn-forecast-mode {
+  margin-right: 10px;
   font-size: 20px;
   font-weight: 400;
-  margin-right: 10px;
   transition: color 0.25s ease;
 }
 
 .btn-forecast-mode-active {
-  text-decoration: underline;
   font-weight: 700;
+  text-decoration: underline;
 }
 
 .forecast-content {
@@ -208,33 +211,30 @@ body {
   justify-content: space-between;
   align-items: center;
   max-width: 600px;
-  font-family: "Overpass", sans-serif;
-  font-weight: 700;
-  font-size: 16px;
   margin: 10px 0;
+  font-family: "Overpass", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .forecast-hour {
-  text-align: left;
   width: 50px;
+  text-align: left;
 }
 .weekday {
-  text-align: left;
   width: 30px;
+  text-align: left;
 }
 
 .daily-temp {
   width: 100px;
 }
 
-.hourly-temp {
-  width: 60px;
-}
-
 .forecast-icon {
   width: 30px;
 }
 
+.hourly-temp,
 .forecast-uv-value {
   width: 60px;
 }
@@ -248,8 +248,8 @@ body {
 
 .sunlight-exposure-container {
   display: flex;
-  align-items: center;
   flex-direction: column;
+  align-items: center;
   margin: 50px 0;
 }
 
@@ -293,15 +293,18 @@ body {
   font-weight: 400;
 }
 
+/* Mobile */
+
 @media (min-width: 768px) {
   body {
     overflow-x: hidden;
   }
-  .nav {
-    margin: 50px 0 0 0;
+
+  .navigation {
     display: flex;
     flex-direction: row;
     justify-content: center;
+    margin: 50px 0 0 0;
   }
   .website-title {
     margin-right: 50px;
@@ -379,6 +382,7 @@ body {
     margin: 0;
   }
 
+  .btn-forecast-mode:hover,
   .btn-temp:hover {
     color: #ffffff;
   }
@@ -389,9 +393,5 @@ body {
 
   .btn-skin-type:hover {
     opacity: 1;
-  }
-
-  .btn-forecast-mode:hover {
-    color: #ffffff;
   }
 }
