@@ -4,7 +4,6 @@ import {
   openweatherApiToken,
   openweatherApiUrl,
   excl,
-  useMockApiResponse,
 } from "./consts.js";
 
 import { fakeResponseCurrentUV, fakeResponseForcastedUV } from "./mocks.js";
@@ -16,10 +15,6 @@ export function fetchCurrentUV(lat, lng) {
   url.searchParams.set("lat", lat);
   url.searchParams.set("lng", lng);
 
-  if (useMockApiResponse) {
-    return fakeResponseCurrentUV;
-  }
-
   return fetch(url, {
     method: "GET",
     headers: {
@@ -33,6 +28,9 @@ export function fetchCurrentUV(lat, lng) {
     })
     .catch(function (err) {
       errorManager().renderErrorMessage(err);
+      if (err) {
+        return fakeResponseCurrentUV;
+      }
     });
 }
 export function fetchForecastedUV(lat, lng, date) {
@@ -41,10 +39,6 @@ export function fetchForecastedUV(lat, lng, date) {
   url.searchParams.set("lng", lng);
   url.searchParams.set("dt", date);
 
-  if (useMockApiResponse) {
-    return fakeResponseForcastedUV;
-  }
-
   return fetch(url, {
     method: "GET",
     headers: {
@@ -58,6 +52,9 @@ export function fetchForecastedUV(lat, lng, date) {
     })
     .catch(function (err) {
       errorManager().renderErrorMessage(err);
+      if (err) {
+        return fakeResponseForcastedUV;
+      }
     });
 }
 

@@ -1,13 +1,11 @@
 export const openuvApiToken = "85797c8abf405c359f7f51563fc05172";
-export const openuvApiURL = "https://api.openuv.io/api/v1/";
+export const openuvApiURL = "https://api.openuv.io/api/v1";
 
 export const openweatherApiToken = "c1d13ca3ce67ce7193a0ba5b70468f07";
 export const openweatherApiUrl =
   "https://api.openweathermap.org/data/2.5/onecall";
 
 export const excl = "minutely";
-
-export const useMockApiResponse = true;
 
 export const vitDExposureTimes = {
   low: {
