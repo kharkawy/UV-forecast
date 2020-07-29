@@ -1,5 +1,7 @@
-# Introduction
+# UV Forecast
+## Description
 
+A website that provides real-time UV index forecast, using OpenUV API and OpenWeather API. 
 
 ## Installation
 1. Clone the repository onto your local machine
