@@ -1,6 +1,5 @@
 # Introduction
 
-Description
 
 ## Installation
 
@@ -11,13 +10,4 @@ npm install
 ```
 
 ## Development
-
-```bash
-   npm start
-```
-
-## E2E Tests
-
-```bash
-   npm test
-```
+Run `npm run start` and click the link printed in the console.
