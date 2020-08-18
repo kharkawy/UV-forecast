@@ -101,7 +101,7 @@ export function transformHourlyForcast(hourlyForecast, uvForecast) {
           extractTimeFromDate(elem.uv_time).substring(0, 2)
         ) {
           rawUV = elem.uv;
-        } //spytać Rafała czemu else tu nie działa, tylko zwraca wszędzie 0
+        }
       });
 
       const uvIndex = calculateCloudsFactor(rawUV, clouds);
@@ -145,10 +145,14 @@ function calculateExposure(factor, uv) {
   const rest = exposureInMinutes % 60;
   let safeExposureTime;
 
-  if (exposureInHours === 0) {
-    return (safeExposureTime = rest + "min");
+  if (uv !== 0) {
+    if (exposureInHours === 0) {
+      return (safeExposureTime = rest + "min");
+    } else {
+      return (safeExposureTime = exposureInHours + "h " + rest + "min");
+    }
   } else {
-    return (safeExposureTime = exposureInHours + "h " + rest + "min");
+    return "Indefinite time";
   }
 }
 
